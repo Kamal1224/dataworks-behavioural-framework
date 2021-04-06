@@ -154,6 +154,64 @@ def step_impl(
         )
 
 
+@given(
+    "UCFS send '{count}' claimant API kafka messages with input file of '{input_file_name}' "
+    "and data file of '{data_file_name}'"
+)
+def step_impl(
+    context,
+    count,
+    input_file_name,
+    data_file_name,
+):
+    global message_type
+
+    root_folder = os.path.join(context.temp_folder, str(uuid.uuid4()))
+    folder = streaming_data_helper.generate_fixture_data_folder(message_type)
+    context.claimant_api_kafka_temp_folder = os.path.join(root_folder, folder)
+    topic_prefix = streaming_data_helper.generate_topic_prefix(message_type)
+
+    (
+        kafka_input_file_data,
+        context.generated_ninos,
+        context.generated_ids,
+    ) = claimant_api_data_generator.generate_claimant_api_kafka_files(
+        s3_input_bucket=context.s3_ingest_bucket,
+        input_data_file_name=data_file_name,
+        input_template_name=input_file_name,
+        new_uuid=None,
+        local_files_temp_folder=root_folder,
+        fixture_files_root=context.fixture_path_local,
+        s3_output_prefix=context.s3_temp_output_path,
+        seconds_timeout=context.timeout,
+        fixture_data_folder=folder,
+        message_count=count,
+    )
+
+    context.local_generated_claimant_api_kafka_files = []
+
+    for (id_field_name, generated_files) in kafka_input_file_data:
+        files_to_send = [db_object_tuple[0] for db_object_tuple in generated_files]
+        context.local_generated_claimant_api_kafka_files.extend(
+            [db_object_tuple[1] for db_object_tuple in generated_files]
+        )
+        aws_helper.send_files_to_kafka_producer_sns(
+            dynamodb_table_name=context.dynamo_db_table_name,
+            s3_input_bucket=context.s3_ingest_bucket,
+            aws_acc_id=context.aws_acc,
+            sns_topic_name=context.aws_sns_topic_name,
+            fixture_files=files_to_send,
+            message_key=uuid.uuid4(),
+            topic_name=ucfs_claimant_api_helper.get_topic_by_id_type(id_field_name),
+            topic_prefix=topic_prefix,
+            region=context.aws_region_main,
+            skip_encryption=False,
+            kafka_message_volume="1",
+            kafka_random_key="true",
+            wait_for_job_completion=True,
+        )
+
+
 @when(
     "UCFS send kafka updates for first existing claimant with input file of '{input_file_name}' and data file of '{data_file_name}'"
 )

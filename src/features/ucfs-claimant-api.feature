@@ -20,7 +20,6 @@ Feature: UCFS Claimant API
     When I query for the first new claimant from claimant API 'v2'
     Then The query succeeds and returns that the claimant has been found
 
-  @replica-test
   Scenario: Assessment periods are returned when querying for new claimant
     Given UCFS send claimant API kafka messages with input file of 'valid_file_input.json' and data file of 'multiple_assessment_periods.yml'
     And The new claimants can be found from claimant API 'v2'
@@ -48,3 +47,7 @@ Feature: UCFS Claimant API
     And The query succeeds and returns that the claimant has been found
     And UCFS send a kafka delete for first existing claimant with input file of 'valid_delete.json'
     Then I query the first claimant again from claimant API 'v2' and it is not found
+
+  @replica-test
+  Scenario: Higher volume of claimant API messages
+    Given UCFS send '25' claimant API kafka messages with input file of 'valid_file_input.json' and data file of 'single_new_claimant.yml'

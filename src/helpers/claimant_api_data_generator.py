@@ -30,6 +30,7 @@ def generate_claimant_api_kafka_files(
     s3_output_prefix,
     seconds_timeout,
     fixture_data_folder,
+    message_count=None,
 ):
     """Returns array of generated kafka data as tuples of (input s3 location, output local file).
 
@@ -43,6 +44,7 @@ def generate_claimant_api_kafka_files(
     s3_output_prefix -- the output path for the edited file in s3
     seconds_timeout -- the timeout in seconds for the test
     fixture_data_folder -- the folder from the root of the fixture data
+    message_count -- optional -- number of messages to generate
     """
     global _base_datetime_timestamp
 
@@ -74,9 +76,10 @@ def generate_claimant_api_kafka_files(
             _base_datetime_timestamp, increment, True
         )
 
-        if "count" in item:
+        if "count" in item or message_count is not None:
             count = 0
-            while count < item["count"]:
+            limit = message_count if message_count is not None else item["count"]
+            while count < limit:
                 nino = generate_national_insurance_number(citizen_id)
                 unique_suffix = f"{increment}{count}"
                 claimant_db_object = _generate_claimant_db_object(
