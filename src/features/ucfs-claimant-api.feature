@@ -20,6 +20,7 @@ Feature: UCFS Claimant API
     When I query for the first new claimant from claimant API 'v2'
     Then The query succeeds and returns that the claimant has been found
 
+  @replica-test
   Scenario: Assessment periods are returned when querying for new claimant
     Given UCFS send claimant API kafka messages with input file of 'valid_file_input.json' and data file of 'multiple_assessment_periods.yml'
     And The new claimants can be found from claimant API 'v2'
