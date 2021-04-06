@@ -81,7 +81,7 @@ def generate_claimant_api_kafka_files(
             limit = message_count if message_count is not None else item["count"]
             while count < limit:
                 nino = generate_national_insurance_number(citizen_id)
-                unique_suffix = f"{increment}{count}"
+                unique_suffix = int(f"{increment}{count}")
                 claimant_db_object = _generate_claimant_db_object(
                     citizen_id, person_id, nino, unique_suffix
                 )
