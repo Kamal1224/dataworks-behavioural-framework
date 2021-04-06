@@ -185,7 +185,7 @@ def step_impl(
         s3_output_prefix=context.s3_temp_output_path,
         seconds_timeout=context.timeout,
         fixture_data_folder=folder,
-        message_count=count,
+        message_count=int(count),
     )
 
     context.local_generated_claimant_api_kafka_files = []
