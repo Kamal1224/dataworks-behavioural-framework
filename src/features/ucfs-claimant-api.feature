@@ -51,3 +51,5 @@ Feature: UCFS Claimant API
   @replica-test
   Scenario: Higher volume of claimant API messages
     Given UCFS send '25' claimant API kafka messages with input file of 'valid_file_input.json' and data file of 'single_new_claimant.yml'
+    And UCFS send '25' claimant API kafka messages with input file of 'valid_file_input.json' and data file of 'suspended_claimant.yml'
+    And UCFS send '25' claimant API kafka messages with input file of 'valid_file_input.json' and data file of 'multiple_assessment_periods.yml'
