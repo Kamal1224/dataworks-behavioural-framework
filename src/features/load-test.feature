@@ -56,3 +56,12 @@ Feature: UCFS Historic Data Ingestion to Dataworks with high load
     Examples: Message types
         | input-file-name                                    | output-file-name                                   |
         | current_valid_file_input.json                      | current_valid_file_output.json                     |
+
+  @hbase-load-test-upload-import
+  @fixture.hbase.clear.ingest.start
+  @fixture.s3.clear.historic.data.start
+  @fixture.s3.clear.snapshot.start
+  Scenario: High load is imported in to HBase with one key per record in each file and exported to Snapshots
+    When UCFS upload desired number of files with desired number of records per collection using load test key method
+    And The import process is performed and a manifest is generated with skip existing records setting of 'false'
+    Then The relevant formatted data is stored in HBase with id format of 'not_wrapped'
